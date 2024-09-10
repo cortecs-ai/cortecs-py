@@ -1,26 +1,3 @@
-# ⚙️⚡ pycortecs
-
-Thin wrapper to manage [cortecs.ai](https://cortecs.ai) LLM workflows.
-
-## LLMs for Big Data
-
-Dedicated inference allows you to process large volumes of unstructured data efficiently:
-
-- **Quantization**: By reducing precision to FP8, you cut compute costs by 50% while retaining 99.9% of the original
-  model quality.
-- **Optimized batch processing**: Instances are fine-tuned for maximum performance when handling batch workloads.
-- **Latest generation**: Leverage the latest GPUs (L4, L40s, H100) to accelerate throughput on demanding tasks.
-
-## Example
-
-This example shows how to translate the entire Bible into German:
-1. Download the bible,
-2. split bible into chunks,
-3. start an LLM inference endpoint,
-4. Execute the translation chain,
-5. finally, stop the inference endpoint.
-
-```python
 import os
 
 import requests
@@ -50,10 +27,10 @@ if __name__ == '__main__':
     bile_docs = text_splitter.split_text(bible)
 
     # start a dedicated instance
-    client = Client()
+    client = Client(api_base_url='http://localhost:3000/api/v1')
     instance = client.start_instance_and_poll(model_name=model_name, instance_type='NVIDIA_H100_1')
 
-    # create chain
+    # create processing chain
     llm = OpenAI(openai_api_key=api_key,
                  openai_api_base=f'https://{instance["domain"]}/v1',
                  model_name=model_name)
@@ -71,4 +48,3 @@ if __name__ == '__main__':
 
     # shutdown instance
     client.stop_instance(instance['id'])
-```
