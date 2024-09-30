@@ -10,9 +10,9 @@ on-demand access. Once the workflow is complete, the infrastructure is shut down
 need. This approach maximizes resource utilization in tasks like batch or cron jobs, minimizing token costs. A typical
 workflow include:
 
-1. Retrieve a dynamically provisioned LLM,
+1. Dynamically provision an LLM,
 2. Set up data processing chains using langchain,
-3. Load data and apply preprocessing,
+3. Load data and do preprocessing,
 4. Execute chains,
 5. Shutdown dynamically provisioned infrastructure.
 
@@ -24,12 +24,9 @@ cortecs = Cortecs(api_key='<KEY>', secret='<SECRET>')
 ## --- use dynamically provisioned llm ---
 instance_id, llm = cortecs.start(model_name='<MODEL_NAME>')
 
-# setup complex chains using langchain
-chain = llm | ...
-# load data, do preprocessing, etc.
-document = ...
-# execute chains on document(s)
-chain.invoke(...)
+chain = llm | ...  # set up complex chains
+document = ...  # load data, do preprocessing
+chain.run(document)  # execute chains
 
 ## ---- shutdown ----
 cortecs.stop(instance_id)
