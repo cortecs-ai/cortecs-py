@@ -1,2 +1,4 @@
 requests
 tqdm
+langchain
+langchain-openai

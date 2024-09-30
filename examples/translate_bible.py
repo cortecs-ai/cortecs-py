@@ -6,7 +6,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from tqdm import trange
 from transformers import AutoTokenizer
-from cortecs.client import Client
+from cortecs.client import BaseCortecs
 
 
 client_id = os.environ.get('CORTECS_CLIENT_ID')
@@ -16,7 +16,7 @@ api_key = os.environ.get('CORTECS_API_KEY')
 
 if __name__ == '__main__':
 
-    model_name = 'neuralmagic/Mistral-Nemo-Instruct-2407-FP8'
+    model_name = 'neuralmagic/Meta-Llama-3.1-8B-Instruct-FP8'
     bible = requests.get("https://openbible.com/textfiles/kjv.txt").text
 
     # split bible into chunks
@@ -27,8 +27,8 @@ if __name__ == '__main__':
     bile_docs = text_splitter.split_text(bible)
 
     # start a dedicated instance
-    client = Client(api_base_url='http://localhost:3000/api/v1')
-    instance = client.start_instance_and_poll(model_name=model_name, instance_type='NVIDIA_H100_1')
+    client = BaseCortecs(api_base_url='https://develop.cortecs.ai/api/v1')
+    instance = client.start_and_poll(model_name=model_name, instance_type='NVIDIA_L40s_1')
 
     # create processing chain
     llm = OpenAI(openai_api_key=api_key,
@@ -47,4 +47,4 @@ if __name__ == '__main__':
             file.write(translation)
 
     # shutdown instance
-    client.stop_instance(instance['id'])
+    client.stop(instance['id'])

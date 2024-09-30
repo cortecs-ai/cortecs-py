@@ -1,14 +1,16 @@
 import os
-from tqdm import tqdm
-import requests
 import time
 from typing import Optional, Dict, Any
 
+import requests
+from tqdm import tqdm
+import logging
 
-class Client:
-    def __init__(self, client_id: str = None, client_secret: str = None, api_base_url: str = 'https://cortecs.ai/api/v1'):
-        self.client_id = client_id if client_id else os.environ.get('CORTECS_CLIENT_ID')
-        self.client_secret = client_secret if client_secret else os.environ.get('CORTECS_CLIENT_SECRET')
+class BaseCortecs:
+    def __init__(self, client_id: str = None, client_secret: str = None, api_key: str = None,
+                 api_base_url: str = 'https://developer.cortecs.ai/api/v1'):
+        self.__client_id = client_id if client_id else os.environ.get('CORTECS_CLIENT_ID')
+        self.__client_secret = client_secret if client_secret else os.environ.get('CORTECS_CLIENT_SECRET')
         self.api_base_url = api_base_url
         self.token = None
         self.token_expiry = 0
@@ -19,8 +21,8 @@ class Client:
             self.api_base_url + '/oauth2/token',
             json={
                 'grant_type': 'client_credentials',
-                'client_id': self.client_id,
-                'client_secret': self.client_secret,
+                'client_id': self.__client_id,
+                'client_secret': self.__client_secret,
             }
         )
 
@@ -63,36 +65,42 @@ class Client:
         return response.json()
 
     def restart_instance(self, instance_id: str):
-        self._post('/models/restartModel',
-                   data={'id': instance_id},
-                   auth_required=True)
+        return self._post('/models/restartModel',
+                          data={'id': instance_id},
+                          auth_required=True)
 
-    def start_instance(self, model_name: str, instance_type: str, force: bool = False):
+    def start(self, model_name: str, instance_type: str, force: bool = False):
         model_name = model_name.replace('/', '--')  # transform huggingface format
+
         # check if model_name is already in console
+        instance_id = None
         if not force:
             res = self.get_instances_status()
             for instance in res['instanceStatus']:
                 if instance['model_id'] == model_name:
+                    instance_id = instance['id']
                     if instance['model_status'] == 'stopped':
-                        print(f'instance {instance["model_id"]} is restarted.')
-                        return self.restart_instance(instance['id'])
-                    else:
-                        print(f'{model_name} is already running. No new instance is started (otherwise set force=True).')
-                        # todo /models/startModel and this should return instanceStatus
-                        return {
-                            'message': 'Instance is running',
-                            'id': instance['id']
-                        }
+                        logging.info(f'instance {instance["model_id"]} is restarted.')
+                        self.restart_instance(instance['id'])
+                    logging.info(f'{model_name} is already running. No new instance is started (otherwise set force=True).')
+                    break
 
-        return self._post('/models/startModel',
-                          data={
-                              'model_name': model_name,
-                              'instance_name': instance_type
-                          },
-                          auth_required=True)
+        if not instance_id:
+            instance = self._post('/models/startModel',
+                                  data={
+                                      'model_name': model_name,
+                                      'instance_name': instance_type
+                                  },
+                                  auth_required=True)
+            instance_id = instance['id']
+            # todo instance_status is not propagated immediately
+            time.sleep(3)
 
-    def stop_instance(self, model_id: str):
+        # todo /models/startModel should return instanceStatus right away
+        instance_status = self.get_instance_status(instance_id)
+        return instance_status
+
+    def stop(self, model_id: str):
         return self._post('/models/stopModel',
                           data={'id': model_id},
                           auth_required=True)
@@ -106,18 +114,17 @@ class Client:
             if instance['id'] == instance_id:
                 return instance
 
-    def start_instance_and_poll(self, model_name: str, instance_type: str, force: bool = False, poll_interval: int = 5, max_retries: int = 150):
-        instance = self.start_instance(model_name, instance_type, force=force)
+    def start_and_poll(self, model_name: str, instance_type: str, force: bool = False, poll_interval: int = 5,
+                       max_retries: int = 150):
+        instance_status = self.start(model_name, instance_type, force=force)
 
-        time.sleep(5)  # wait until model spin up is propagated in the db
-        instance_status = self.get_instance_status(instance['id'])
         n_required_steps = instance_status['init_status']['num_steps'] + 1
         if not force and instance_status['init_status']['status'] == n_required_steps:
             return instance_status
 
         with tqdm(total=n_required_steps, desc='start instance') as pbar:
             for attempt in range(max_retries - 1):
-                instance_status = self.get_instance_status(instance['id'])
+                instance_status = self.get_instance_status(instance_status['id'])
                 pbar.set_description(instance_status['init_status']['description'])
                 pbar.n = instance_status['init_status']['status']
                 pbar.refresh()
@@ -128,4 +135,6 @@ class Client:
                 time.sleep(poll_interval)
 
         raise TimeoutError(f"Timeout after {round(max_retries * poll_interval, 1)} seconds.")
+
+
 
