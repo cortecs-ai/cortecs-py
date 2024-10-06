@@ -6,11 +6,14 @@ import requests
 from tqdm import tqdm
 import logging
 
-class BaseCortecs:
+class Cortecs:
     def __init__(self, client_id: str = None, client_secret: str = None, api_key: str = None,
                  api_base_url: str = 'https://developer.cortecs.ai/api/v1'):
         self.__client_id = client_id if client_id else os.environ.get('CORTECS_CLIENT_ID')
         self.__client_secret = client_secret if client_secret else os.environ.get('CORTECS_CLIENT_SECRET')
+        if not self.__client_id or not self.__client_secret:
+            raise ValueError("Set `CORTECS_CLIENT_ID` and `CORTECS_CLIENT_SECRET` as environment variable.")
+
         self.api_base_url = api_base_url
         self.token = None
         self.token_expiry = 0
@@ -69,7 +72,7 @@ class BaseCortecs:
                           data={'id': instance_id},
                           auth_required=True)
 
-    def start(self, model_name: str, instance_type: str, force: bool = False):
+    def start(self, model_name: str, instance_type: str = None, context_length: int = None, force: bool = False):
         model_name = model_name.replace('/', '--')  # transform huggingface format
 
         # check if model_name is already in console
@@ -89,7 +92,8 @@ class BaseCortecs:
             instance = self._post('/models/startModel',
                                   data={
                                       'model_name': model_name,
-                                      'instance_name': instance_type
+                                      'instance_name': instance_type,
+                                      'context_length': context_length
                                   },
                                   auth_required=True)
             instance_id = instance['id']
@@ -114,9 +118,9 @@ class BaseCortecs:
             if instance['id'] == instance_id:
                 return instance
 
-    def start_and_poll(self, model_name: str, instance_type: str, force: bool = False, poll_interval: int = 5,
+    def start_and_poll(self, model_name: str, instance_type: str = None, context_length: int = None, force: bool = False, poll_interval: int = 5,
                        max_retries: int = 150):
-        instance_status = self.start(model_name, instance_type, force=force)
+        instance_status = self.start(model_name, instance_type, context_length, force=force)
 
         n_required_steps = instance_status['init_status']['num_steps'] + 1
         if not force and instance_status['init_status']['status'] == n_required_steps:
@@ -125,9 +129,10 @@ class BaseCortecs:
         with tqdm(total=n_required_steps, desc='start instance') as pbar:
             for attempt in range(max_retries - 1):
                 instance_status = self.get_instance_status(instance_status['id'])
+                if instance_status['model_status'] == 'stopped':
+                    raise RuntimeError("Instance has been stopped.")
                 pbar.set_description(instance_status['init_status']['description'])
-                pbar.n = instance_status['init_status']['status']
-                pbar.refresh()
+                pbar.update(instance_status['init_status']['status'] - pbar.n)
 
                 if instance_status['init_status']['status'] == n_required_steps:  # instance is ready
                     return instance_status
