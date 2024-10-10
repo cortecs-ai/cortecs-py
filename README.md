@@ -1,38 +1,34 @@
-# ⚙️⚡ pycortecs
+# ⚙️⚡ cortecs-py
 
-A thin library to run dynamic LLM flows using [cortecs.ai](https://cortecs.ai).
+A thin wrapper around [cortecs.ai](https://cortecs.ai) to support dynamic provisioning.
 
 ## Dynamic provisioning
 
-Dynamic provisioning in serverless computing allows you to build complex workflows without managing infrastructure. The
-LLM and underlying compute resources are automatically provisioned for the duration of use, providing efficient,
-on-demand access. Once the workflow is complete, the infrastructure is shut down, ensuring you only pay for what you
-need. This approach maximizes resource utilization in tasks like batch or cron jobs, minimizing token costs. A typical
-workflow include:
+Dynamic provisioning allows you to run LLM-workflows on dedicated compute. The
+LLM and underlying resources are automatically provisioned for the duration of use, providing maximum cost-efficiency.
+Once the workflow is complete, the infrastructure is automatically shut down. 
 
-1. Dynamically provision an LLM,
-2. Set up data processing chains using langchain,
-3. Load data and do preprocessing,
-4. Execute chains,
-5. Shutdown dynamically provisioned infrastructure.
+This library starts and stops your resources. The logic can be implemented using popular frameworks such as [langchain]() 
+or [crewAI]().
+
+1. Load (vast amounts of) data
+2. **Start your LLM**
+3. Execute your (batch) jobs 
+4. **Shutdown your LLM**
 
 ```python
-from cortecs.langchain.client import Cortecs
+from cortecs.client import Cortecs
+from cortecs.langchain.dedicated_llm import DedicatedLLM
 
-cortecs = Cortecs(api_key='<KEY>', secret='<SECRET>')
+cortecs = Cortecs()
+docs = ...  # load documents
 
-## --- use dynamically provisioned llm ---
-instance_id, llm = cortecs.start(model_name='<MODEL_NAME>')
-
-chain = llm | ...  # set up complex chains
-document = ...  # load data, do preprocessing
-chain.run(document)  # execute chains
-
-## ---- shutdown ----
-cortecs.stop(instance_id)
+with DedicatedLLM(client=cortecs, model_name='neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8') as llm:
+    chain = ... | llm  # run arbitrary chains
+    result = chain.batch([{"text": doc.page_content} for doc in docs])
 ```
 
-## Example
+## Getting started
 
 ### Install
 
@@ -40,61 +36,59 @@ cortecs.stop(instance_id)
 pip install pycortecs
 ```
 
-### Translate a book using langchain
+### Summarizing documents
 
-First, set up the in environment variables. Use your credentials from [cortecs.ai](https://cortecs.ai). Optionally,
-configure the huggingface tokenizer for this particular example.
+First, set up the in environment variables. Use your credentials from [cortecs.ai](https://cortecs.ai). 
 
 ```
 export CORTECS_CLIENT_ID="<YOUR_ID>"
 export CORTECS_CLIENT_SECRET="<YOUR_SECRET>"
-export TOKENIZERS_PARALLELISM="false"
 ```
 
-This example shows how to use [langchain](https://python.langchain.com) to configure a simple translation chain. 
-The llm is dynamically provisioned and the chain is executed in paralle. 
+This example shows how to use [langchain](https://python.langchain.com) to configure a simple translation chain.
+The llm is dynamically provisioned and the chain is executed in paralle.
 
 ```python
-import requests
+from langchain_community.document_loaders import ArxivLoader
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from transformers import AutoTokenizer
-from cortecs.langchain.client import Cortecs
 
-# define the model you want to provision
-model_name = 'neuralmagic/Meta-Llama-3.1-8B-Instruct-FP8'
+from cortecs.client import Cortecs
+from cortecs.langchain.dedicated_llm import DedicatedLLM
 
-if __name__ == '__main__':
-    client = Cortecs()
+cortecs = Cortecs(api_base_url='https://develop.cortecs.ai/api/v1')
+loader = ArxivLoader(
+    query="reasoning",
+    load_max_docs=20,
+    get_ful_documents=True,
+    doc_content_chars_max=25000,  # ~6.25k tokens, make sure the models supports that context length
+    load_all_available_meta=False
+)
 
-    # --- use dynamically provisioned llm ---
-    instance_id, llm = client.start(model_name=model_name, instance_type='NVIDIA_L4_1')
+prompt = ChatPromptTemplate.from_template("{text}\n\n Explain me like I'm five:")
+docs = loader.load()
 
-    # set up a simple translation chain
-    prompt = ChatPromptTemplate.from_template("{text}\n\n Translate to english:")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    text_splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(
-        tokenizer, chunk_size=1000, chunk_overlap=0
-    )
-    translation_chain = prompt | llm
+with DedicatedLLM(client=cortecs, model_name='neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8') as llm:
+    chain = prompt | llm
 
-    # load a book to translate to english
-    book = requests.get("https://www.gutenberg.org/cache/epub/23532/pg23532.txt").text
-    chunks = text_splitter.split_text(book)
-
-    # execute chain (in batches) and persist the result
-    translations = [None] * len(chunks)
-    for i, translation in translation_chain.batch_as_completed([{'text': chunk} for chunk in chunks]):
-        translations[i] = translation.content
-        print(translation.content)
-    open(f'translated_book.txt', 'w').write(' '.join(translations))
-
-    # --- stop ---
-    client.stop(instance_id)
+    print("Processing data batch-wise ...")
+    summaries = chain.batch([{"text": doc.page_content} for doc in docs])
+    for summary in summaries:
+        print(summary.content + '-------\n\n\n')
 ```
 
-This simple example showcases the power of dynamic provisioning. We translated X input tokens to Y output tokens in Z minutes.
-The llm can be fully utilized in those Z minutes enabling better cost efficiency. Comparing the execution with cloud-APIs from
+This simple example showcases the power of dynamic provisioning. We translated X input tokens to Y output tokens in Z
+minutes.
+The llm can be fully utilized in those Z minutes enabling better cost efficiency. Comparing the execution with
+cloud-APIs from
 OpenAI and Meta we see the costs advantage.
 
 #### TODO insert bar chart
+
+## Use Cases
+
+* Batch processing
+* Low latency -> [How to process reddit in realtime]()
+* Multi-agents -> [How to use CrewAI without request limits]()
+* High-security 
+
+For more information see our [docs]() or join our [discord]().
