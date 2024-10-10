@@ -1,3 +1,5 @@
 langchain-community
 arxiv
 pymupdf
+praw
+crewai
