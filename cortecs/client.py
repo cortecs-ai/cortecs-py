@@ -8,7 +8,7 @@ import logging
 
 class Cortecs:
     def __init__(self, client_id: str = None, client_secret: str = None, api_key: str = None,
-                 api_base_url: str = 'https://developer.cortecs.ai/api/v1'):
+                 api_base_url: str = 'https://cortecs.ai/api/v1'):
         self.__client_id = client_id if client_id else os.environ.get('CORTECS_CLIENT_ID')
         self.__client_secret = client_secret if client_secret else os.environ.get('CORTECS_CLIENT_SECRET')
         if not self.__client_id or not self.__client_secret:
@@ -118,13 +118,20 @@ class Cortecs:
             if instance['id'] == instance_id:
                 return instance
 
+    # hide irrelevant information from user
+    def _filter_instance_status(self, instance_status):
+        return instance_status['id'], {
+            'base_url': f'https://{instance_status["domain"]}/v1',
+            'model_name': instance_status['model_id'].replace('--', '/')
+        }
+
     def start_and_poll(self, model_name: str, instance_type: str = None, context_length: int = None, force: bool = False, poll_interval: int = 5,
                        max_retries: int = 150):
         instance_status = self.start(model_name, instance_type, context_length, force=force)
 
         n_required_steps = instance_status['init_status']['num_steps'] + 1
         if not force and instance_status['init_status']['status'] == n_required_steps:
-            return instance_status
+            return self._filter_instance_status(instance_status)
 
         with tqdm(total=n_required_steps, desc='start instance') as pbar:
             for attempt in range(max_retries - 1):
@@ -135,11 +142,8 @@ class Cortecs:
                 pbar.update(instance_status['init_status']['status'] - pbar.n)
 
                 if instance_status['init_status']['status'] == n_required_steps:  # instance is ready
-                    return instance_status
+                    return self._filter_instance_status(instance_status)
 
                 time.sleep(poll_interval)
 
         raise TimeoutError(f"Timeout after {round(max_retries * poll_interval, 1)} seconds.")
-
-
-
