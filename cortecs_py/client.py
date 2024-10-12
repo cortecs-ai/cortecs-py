@@ -6,15 +6,16 @@ import requests
 from tqdm import tqdm
 import logging
 
+
 class Cortecs:
-    def __init__(self, client_id: str = None, client_secret: str = None, api_key: str = None,
+    def __init__(self, client_id: str = None, client_secret: str = None,
                  api_base_url: str = 'https://cortecs.ai/api/v1'):
         self.__client_id = client_id if client_id else os.environ.get('CORTECS_CLIENT_ID')
         self.__client_secret = client_secret if client_secret else os.environ.get('CORTECS_CLIENT_SECRET')
         if not self.__client_id or not self.__client_secret:
             raise ValueError("Set `CORTECS_CLIENT_ID` and `CORTECS_CLIENT_SECRET` as environment variable.")
 
-        self.api_base_url = api_base_url
+        self.api_base_url = api_base_url if api_base_url else os.environ.get('CORTECS_API_BASE_URL')
         self.token = None
         self.token_expiry = 0
 
@@ -85,7 +86,8 @@ class Cortecs:
                     if instance['model_status'] == 'stopped':
                         logging.info(f'instance {instance["model_id"]} is restarted.')
                         self.restart_instance(instance['id'])
-                    logging.info(f'{model_name} is already running. No new instance is started (otherwise set force=True).')
+                    logging.info(
+                        f'{model_name} is already running. No new instance is started (otherwise set force=True).')
                     break
 
         if not instance_id:
@@ -125,7 +127,8 @@ class Cortecs:
             'model_name': instance_status['model_id'].replace('--', '/')
         }
 
-    def start_and_poll(self, model_name: str, instance_type: str = None, context_length: int = None, force: bool = False, poll_interval: int = 5,
+    def start_and_poll(self, model_name: str, instance_type: str = None, context_length: int = None,
+                       force: bool = False, poll_interval: int = 5,
                        max_retries: int = 150):
         instance_status = self.start(model_name, instance_type, context_length, force=force)
 

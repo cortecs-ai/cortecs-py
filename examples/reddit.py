@@ -2,13 +2,13 @@ import praw
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
-from cortecs.client import Cortecs
-from cortecs.langchain.dedicated_llm import DedicatedLLM
+from cortecs_py import Cortecs
+from cortecs_py.integrations import DedicatedLLM
 
 # this example demonstrates dedicated inference in realtime settings
 if __name__ == '__main__':
     model_name = 'neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8'
-    cortecs = Cortecs(api_base_url='https://develop.cortecs.ai/api/v1')
+    cortecs = Cortecs()
     reddit = praw.Reddit(user_agent='Read-only example bot')
 
     with DedicatedLLM(cortecs, model_name, context_length=1500, temperature=0.) as llm:  # todo decrease context_length

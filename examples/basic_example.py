@@ -1,7 +1,7 @@
 from langchain_openai import ChatOpenAI
-from cortecs.client import Cortecs
+from cortecs_py.client import Cortecs
 
-cortecs = Cortecs(api_base_url='https://develop.cortecs.ai/api/v1')
+cortecs = Cortecs()
 instance_id, llm_info = cortecs.start_and_poll('neuralmagic/Meta-Llama-3.1-8B-Instruct-FP8')
 llm = ChatOpenAI(**llm_info)
 

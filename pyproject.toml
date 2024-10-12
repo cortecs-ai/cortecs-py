@@ -1,0 +1,25 @@
+[project]
+name = "cortecs-py"
+version = "0.0.1"
+authors = [
+    { name = "Markus Tretzmüller", email = "markus.tretzmuller@cortecs.ai" },
+    { name = "Eva Jagodic", email = "eva.jagodic@cortecs.ai" }
+]
+description = "Lightweight wrapper for cortecs.ai enabling ⚡️ instant provisioning"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License"
+]
+
+dependencies = [
+    "requests",
+    "tqdm",
+    "langchain~=0.2.0",
+    "langchain-openai~=0.1.25"
+]
+
+[project.urls]
+Homepage = "https://github.com/cortecs-ai/cortecs-py"  # todo link to our docs
+Issues = "https://github.com/cortecs-ai/cortecs-py/issues"

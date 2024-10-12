@@ -1,8 +1,8 @@
-# ⚙️⚡ cortecs-py
+# cortecs-py
 
-A thin wrapper around [cortecs.ai](https://cortecs.ai) to support dynamic provisioning.
+Lightweight wrapper for the [cortecs.ai](https://cortecs.ai) enabling instant provisioning.
 
-## Dynamic provisioning
+## ⚡ Instant provisioning
 
 Dynamic provisioning allows you to run LLM-workflows on dedicated compute. The
 LLM and underlying resources are automatically provisioned for the duration of use, providing maximum cost-efficiency.
@@ -17,14 +17,14 @@ or [crewAI]().
 4. **Shutdown your LLM**
 
 ```python
-from cortecs.client import Cortecs
-from cortecs.langchain.dedicated_llm import DedicatedLLM
+from cortecs_py.client import Cortecs
+from cortecs_py.integrations import DedicatedLLM
 
 cortecs = Cortecs()
 
 with DedicatedLLM(client=cortecs, model_name='neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8') as llm:
-    joke = llm.invoke('Write an essay about dynamic provisioning')
-    print(joke.content)
+    essay = llm.invoke('Write an essay about dynamic provisioning')
+    print(essay.content)
 
 ```
 
@@ -33,7 +33,7 @@ with DedicatedLLM(client=cortecs, model_name='neuralmagic/Meta-Llama-3.1-70B-Ins
 ### Install
 
 ```
-pip install pycortecs
+pip install cortecs-py
 ```
 
 ### Summarizing documents
@@ -52,10 +52,10 @@ The llm is dynamically provisioned and the chain is executed in paralle.
 from langchain_community.document_loaders import ArxivLoader
 from langchain_core.prompts import ChatPromptTemplate
 
-from cortecs.client import Cortecs
-from cortecs.langchain.dedicated_llm import DedicatedLLM
+from cortecs_py.client import Cortecs
+from cortecs_py.integrations import DedicatedLLM
 
-cortecs = Cortecs(api_base_url='https://develop.cortecs.ai/api/v1')
+cortecs = Cortecs()
 loader = ArxivLoader(
     query="reasoning",
     load_max_docs=20,

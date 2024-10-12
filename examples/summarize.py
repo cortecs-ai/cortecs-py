@@ -4,10 +4,10 @@ from langchain_community.document_loaders import ArxivLoader
 from langchain_core.prompts import ChatPromptTemplate
 from transformers import AutoTokenizer
 
-from cortecs.client import Cortecs
-from cortecs.langchain.dedicated_llm import DedicatedLLM
+from cortecs_py import Cortecs
+from cortecs_py.integrations import DedicatedLLM
 
-cortecs = Cortecs(api_base_url='https://develop.cortecs.ai/api/v1')
+cortecs = Cortecs()
 loader = ArxivLoader(
     query="reasoning",
     load_max_docs=20,

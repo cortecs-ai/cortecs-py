@@ -3,13 +3,13 @@ from typing import Any, Type, TypeVar
 
 from crewai.project import CrewBase
 
-from cortecs.client import Cortecs
+from cortecs_py.client import Cortecs
 T = TypeVar("T", bound=Type[Any])
 
 def DedicatedCrewBase(cls: T) -> T:
     class WrappedDedicatedClass(CrewBase(cls)):  # Inherit behavior from CrewBase
         def __init__(self, cortecs_id=None, cortecs_secret=None, instance_params={}, *args, **kwargs):
-            self.client = Cortecs(cortecs_id, cortecs_secret, api_base_url='https://develop.cortecs.ai/api/v1')  # todo use production url
+            self.client = Cortecs(cortecs_id, cortecs_secret)
 
             if 'model_name' not in instance_params:
                 instance_params['model_name'] = os.environ.get('OPENAI_MODEL_NAME').split('openai/')[-1]

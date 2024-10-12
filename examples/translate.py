@@ -4,12 +4,12 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from tqdm import trange
 from transformers import AutoTokenizer
 
-from cortecs.client import Cortecs
-from cortecs.langchain.dedicated_llm import DedicatedLLM
+from cortecs_py import Cortecs
+from cortecs_py.integrations import DedicatedLLM
 
 if __name__ == '__main__':
     model_name = 'neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8'
-    cortecs = Cortecs(api_base_url='https://develop.cortecs.ai/api/v1')
+    cortecs = Cortecs()
 
     prompt = ChatPromptTemplate.from_template("{text}\n\n Translate to German. Don't comment:")
     tokenizer = AutoTokenizer.from_pretrained(model_name)
