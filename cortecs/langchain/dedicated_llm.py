@@ -7,7 +7,7 @@ class DedicatedLLM:
     def __init__(self, client, request_conf={}, api_key=None, **kwargs):
         self.client = client
         self.provision_kwargs = kwargs
-        self.api_key = api_key if api_key else os.environ.get('CORTECS_API_KEY')
+        self.api_key = api_key if api_key else os.environ.get('OPENAI_API_KEY')
         self.instance_id = None
         self.open_api_kwargs = request_conf  # e.g. temperature
 
