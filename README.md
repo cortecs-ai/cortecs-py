@@ -21,11 +21,11 @@ from cortecs.client import Cortecs
 from cortecs.langchain.dedicated_llm import DedicatedLLM
 
 cortecs = Cortecs()
-docs = ...  # load documents
 
 with DedicatedLLM(client=cortecs, model_name='neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8') as llm:
-    chain = ... | llm  # run arbitrary chains
-    result = chain.batch([{"text": doc.page_content} for doc in docs])
+    joke = llm.invoke('Write an essay about dynamic provisioning')
+    print(joke.content)
+
 ```
 
 ## Getting started
