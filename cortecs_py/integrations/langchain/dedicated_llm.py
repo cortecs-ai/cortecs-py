@@ -8,9 +8,10 @@ class DedicatedLLM:
         self.client = client
         self.provision_kwargs = kwargs
         self.api_key = api_key if api_key else os.environ.get('OPENAI_API_KEY')
+        if not self.api_key:
+            raise ValueError("Set `OPENAI_API_KEY` as environment variable or pass it as an argument to DedicatedLLM.")
         self.instance_id = None
         self.open_api_kwargs = request_conf  # e.g. temperature
-
 
     def __enter__(self):
         self.instance_id, llm_info = self.client.start_and_poll(**self.provision_kwargs)

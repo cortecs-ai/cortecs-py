@@ -16,7 +16,7 @@ loader = ArxivLoader(
     load_all_available_meta=False
 )
 
-prompt = ChatPromptTemplate.from_template("{text}\n\n Explain me like I'm five:")
+prompt = ChatPromptTemplate.from_template("{text}\n\n Explain to me like I'm five:")
 docs = loader.load()
 
 ### ---  look at doc size todo remove

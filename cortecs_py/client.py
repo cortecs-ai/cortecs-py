@@ -15,7 +15,7 @@ class Cortecs:
         if not self.__client_id or not self.__client_secret:
             raise ValueError("Set `CORTECS_CLIENT_ID` and `CORTECS_CLIENT_SECRET` as environment variable.")
 
-        self.api_base_url = api_base_url if api_base_url else os.environ.get('CORTECS_API_BASE_URL')
+        self.api_base_url = os.environ.get('CORTECS_API_BASE_URL', api_base_url)
         self.token = None
         self.token_expiry = 0
 

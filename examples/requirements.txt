@@ -3,3 +3,4 @@ arxiv
 pymupdf
 praw
 crewai
+transformers
