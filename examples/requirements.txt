@@ -1,6 +1,0 @@
-langchain-community
-arxiv
-pymupdf
-praw
-crewai
-transformers

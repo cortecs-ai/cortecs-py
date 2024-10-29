@@ -19,7 +19,7 @@ class Cortecs:
         self.token = None
         self.token_expiry = 0
 
-    def _get_token(self):
+    def _get_token(self) -> None:
         """Private method to get a new token using client credentials."""
         response = requests.post(
             self.api_base_url + '/oauth2/token',
@@ -36,7 +36,7 @@ class Cortecs:
         self.token = token_data['access_token']
         self.token_expiry = time.time() + token_data['expires_in']
 
-    def _ensure_token(self):
+    def _ensure_token(self) -> None:
         """Private method to ensure the token is valid."""
         if self.token is None or time.time() >= self.token_expiry:
             self._get_token()
@@ -68,12 +68,12 @@ class Cortecs:
         response = self._request('POST', endpoint, auth_required=auth_required, json=data, **kwargs)
         return response.json()
 
-    def restart_instance(self, instance_id: str):
+    def restart_instance(self, instance_id: str) -> Dict[str, Any]:
         return self._post('/models/restartModel',
                           data={'id': instance_id},
                           auth_required=True)
 
-    def start(self, model_name: str, instance_type: str = None, context_length: int = None, force: bool = False):
+    def start(self, model_name: str, instance_type: str = None, context_length: int = None, force: bool = False) -> Dict[str, Any]:
         model_name = model_name.replace('/', '--')  # transform huggingface format
 
         # check if model_name is already in console
@@ -106,22 +106,22 @@ class Cortecs:
         instance_status = self.get_instance_status(instance_id)
         return instance_status
 
-    def stop(self, model_id: str):
+    def stop(self, model_id: str) -> Dict[str, Any]:
         return self._post('/models/stopModel',
                           data={'id': model_id},
                           auth_required=True)
 
-    def get_instances_status(self):
+    def get_instances_status(self) -> Dict[str, Any]:
         return self._get('/models/myModels')
 
-    def get_instance_status(self, instance_id):
+    def get_instance_status(self, instance_id: str) -> Optional[Dict[str, Any]]:
         res = self.get_instances_status()
         for instance in res['instanceStatus']:
             if instance['id'] == instance_id:
                 return instance
 
     # hide irrelevant information from user
-    def _filter_instance_status(self, instance_status):
+    def _filter_instance_status(self, instance_status: Dict[str, Any]) -> tuple[str, Dict[str, str]]:
         return instance_status['id'], {
             'base_url': f'https://{instance_status["domain"]}/v1',
             'model_name': instance_status['model_id'].replace('--', '/')
@@ -129,7 +129,7 @@ class Cortecs:
 
     def start_and_poll(self, model_name: str, instance_type: str = None, context_length: int = None,
                        force: bool = False, poll_interval: int = 5,
-                       max_retries: int = 150):
+                       max_retries: int = 150) -> tuple[str, Dict[str, str]]:
         instance_status = self.start(model_name, instance_type, context_length, force=force)
 
         n_required_steps = instance_status['init_status']['num_steps'] + 1

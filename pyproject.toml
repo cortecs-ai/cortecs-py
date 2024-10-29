@@ -20,6 +20,20 @@ dependencies = [
     "langchain-openai~=0.1.25"
 ]
 
+[project.optional-dependencies]
+crewai-integration = ["crewai"]
+
+examples = [
+    "langchain-community",
+    "arxiv",
+    "pymupdf",
+    "praw",
+    "crewai",
+    "transformers"
+]
+
+all = ["crewai", "langchain-community", "arxiv", "pymupdf", "praw", "transformers"]
+
 [project.urls]
 Homepage = "https://github.com/cortecs-ai/cortecs-py"  # todo link to our docs
 Issues = "https://github.com/cortecs-ai/cortecs-py/issues"
