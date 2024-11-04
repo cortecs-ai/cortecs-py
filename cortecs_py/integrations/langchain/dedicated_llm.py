@@ -45,5 +45,4 @@ class DedicatedLLM:
         )
 
     def __exit__(self, exc_type, exc_value, traceback):
-        # self.client.stop(self.instance_id)  # todo shutdown automatically as soon as instant-provisioning is enabled
-        pass
+        self.client.stop(self.instance_id)
