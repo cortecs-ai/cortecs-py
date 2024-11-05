@@ -73,13 +73,10 @@ with DedicatedLLM(client=cortecs, model_name='neuralmagic/Meta-Llama-3.1-8B-Inst
         print(summary.content + '-------\n\n\n')
 ```
 
-This simple example showcases the power of dynamic provisioning. We translated X input tokens to Y output tokens in Z
-minutes.
-The llm can be fully utilized in those Z minutes enabling better cost efficiency. Comparing the execution with
-cloud-APIs from
-OpenAI and Meta we see the costs advantage.
+This simple example showcases the power of dynamic provisioning. We summarized **128.6k input tokens** into **7.9k output tokens** in **35
+seconds**.
+The llm can be **fully utilized** in those 35 seconds enabling better cost efficiency.
 
-#### TODO insert bar chart
 
 ## Use Cases
 
