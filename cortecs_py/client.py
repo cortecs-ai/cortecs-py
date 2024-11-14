@@ -72,23 +72,48 @@ class Cortecs:
         return self._post('/models/restartModel',
                           data={'id': instance_id},
                           auth_required=True)
-
-    def start(self, model_name: str, instance_type: str = None, context_length: int = None, force: bool = False) -> Dict[str, Any]:
+    
+    def _get_defaults_for_model(self, model_name: str): #TODO get instance_type specific default cotext_length
+        response = self._get(endpoint="/models/model", auth_required=False, params={"modelName": model_name})
+        default_config = response["hardware_info"]["recommended_config"]
+        default_context_length = response["hardware_info"]["hardware_configs"][default_config]["params"]["max_context_length"]
+        
+        return (default_config, default_context_length)
+    
+    def _check_equality(self, model_name: str, 
+                        existing_instance_type: str, 
+                        existing_context_length: int, 
+                        req_instance_type: str = None, 
+                        req_context_length: int = None):
+        if not req_instance_type or not req_context_length:
+            default_config, default_context_length = self._get_defaults_for_model(model_name)
+            if not req_instance_type:
+                req_instance_type = default_config
+            if not req_context_length:
+                req_context_length = min(default_context_length, 32000)
+        
+        if req_instance_type == existing_instance_type and req_context_length == existing_context_length:
+            return True
+        else:
+            return False
+        
+    def start(self, model_name: str, instance_type: str = None, context_length: int = None, force: bool = False) -> Dict[str, Any]: #TODO if context length passed and instance_type not, get minimum
         model_name = model_name.replace('/', '--')  # transform huggingface format
 
-        # check if model_name is already in console
+        # check if equivalent model is already in console
         instance_id = None
         if not force:
             res = self.get_instances_status()
             for instance in res['instanceStatus']:
                 if instance['model_id'] == model_name:
-                    instance_id = instance['id']
-                    if instance['model_status'] == 'stopped':
-                        logging.info(f'instance {instance["model_id"]} is restarted.')
-                        self.restart_instance(instance['id'])
-                    logging.info(
-                        f'{model_name} is already running. No new instance is started (otherwise set force=True).')
-                    break
+                    if self._check_equality(model_name, instance["instance_name"], instance["context_length"], instance_type, context_length):
+                        instance_id = instance['id']
+                        if instance['model_status'] == 'stopped':
+                            logging.info(f'instance {instance["model_id"]} is restarted.')
+                            self.restart_instance(instance['id'])
+                        logging.info(
+                            f'{model_name} is already running. No new instance is started (otherwise set force=True).')
+                        break
 
         if not instance_id:
             instance = self._post('/models/startModel',
