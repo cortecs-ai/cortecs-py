@@ -73,16 +73,18 @@ with DedicatedLLM(client=cortecs, model_name='neuralmagic/Meta-Llama-3.1-8B-Inst
         print(summary.content + '-------\n\n\n')
 ```
 
-This simple example showcases the power of dynamic provisioning. We summarized **128.6k input tokens** into **7.9k output tokens** in **35
+This simple example showcases the power of dynamic provisioning. We summarized **224.2k input tokens** into **12.9k output tokens** in **55
 seconds**.
-The llm can be **fully utilized** in those 35 seconds enabling better cost efficiency.
+The llm can be **fully utilized** in those 55 seconds enabling better cost efficiency. Comparing to serverless open source model providers we observe the following:
 
+<img src="https://github.com/user-attachments/assets/3d50d642-9f78-4336-a1a5-235b109d5f68" alt="Price Comparison (USD)" width="500" />
+<img src="https://github.com/user-attachments/assets/6dd22261-47ad-40c8-a647-4ee0ab071545" alt="Price Comparison per Million Tokens (USD)" width="500" />
 
 ## Use Cases
 
+* Low latency -> [How to process reddit in realtime](https://github.com/cortecs-ai/cortecs-py/blob/main/examples/reddit.py)
+* Multi-agents -> [How to use CrewAI without request limits](https://github.com/cortecs-ai/cortecs-py/tree/main/examples/example_crew)
 * Batch processing
-* Low latency -> [How to process reddit in realtime]()
-* Multi-agents -> [How to use CrewAI without request limits]()
 * High-security 
 
-For more information see our [docs]() or join our [discord]().
+For more information see our [docs](https://docs.cortecs.ai/) or join our [discord](https://discord.gg/bPFEFcWBhp).
