@@ -49,7 +49,7 @@ export OPENAI_API_KEY="<YOUR_CORTECS_API_KEY>"
 export CORTECS_CLIENT_ID="<YOUR_ID>"
 export CORTECS_CLIENT_SECRET="<YOUR_SECRET>"
 ```
-This example shows how to use [LangChain](https://python.langchain.com) to configure a simple translation chain.
+This example shows how to use [LangChain](https://python.langchain.com) to configure a simple summarization chain.
 The llm is dynamically provisioned and the chain is executed in parallel.
 
 ```python
