@@ -31,16 +31,21 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
 
+          # Ensure you are on the main branch
+          git fetch origin
+          git checkout main || git checkout -b main
+
           if [ -z "${GITHUB_REF##refs/tags/*}" ]; then
             VERSION="${GITHUB_REF#refs/tags/v}"
 
             echo "Updating pyproject.toml with version: $VERSION"
             sed -i "s/^version = .*/version = \"${VERSION}\"/" pyproject.toml
 
-            #Commit and push updated pyproject.toml
+            # Configure Git
             git config user.name "${{ github.actor }}"
             git config user.email "${{ github.actor }}@users.noreply.github.com"
-            git checkout main 
+
+            # Commit and push updated pyproject.toml
             git add pyproject.toml
             git commit -m "Update pyproject.toml version to $VERSION"
             git push origin main
