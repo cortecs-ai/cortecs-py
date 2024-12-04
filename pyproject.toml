@@ -1,6 +1,6 @@
 [project]
 name = "cortecs-py"
-version = "0.0.2"
+version = "0.0.3"
 authors = [
     { name = "Markus Tretzmüller", email = "markus.tretzmuller@cortecs.ai" },
     { name = "Eva Jagodic", email = "eva.jagodic@cortecs.ai" }
