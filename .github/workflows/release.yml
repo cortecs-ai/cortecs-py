@@ -1,0 +1,19 @@
+name: Automated Release
+
+# Trigger on version tags (e.g., v2.0.0)
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+# Automatically create a GitHub Release, with release details )
+jobs:
+  release:
+    name: "Release"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "marvinpinto/action-automatic-releases@v1.2.1"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          # Set to false for a stable release; set to true for a prerelease (unstable version)
+          prerelease: false

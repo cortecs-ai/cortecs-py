@@ -1,5 +1,12 @@
 # cortecs-py
 
+![PyPI Version](https://img.shields.io/pypi/v/cortecs-py.svg) 
+![Python Versions](https://img.shields.io/pypi/pyversions/cortecs-py.svg) 
+![Downloads](https://img.shields.io/pypi/dm/cortecs-py.svg) 
+![Workflow Status](https://github.com/cortecs-ai/cortecs-py-ci/actions/workflows/test.yaml/badge.svg) 
+[![Documentation](https://img.shields.io/badge/docs-available-blue.svg)](https://docs.cortecs.ai/) 
+[![Join our Discord](https://img.shields.io/badge/discord-join%20chat-7289da.svg)](https://discord.com/invite/bPFEFcWBhp)
+
 Lightweight wrapper for the [cortecs.ai](https://cortecs.ai) enabling instant provisioning.
 
 ## ⚡Quickstart
@@ -20,7 +27,7 @@ from cortecs_py.integrations import DedicatedLLM
 
 cortecs = Cortecs()
 
-with DedicatedLLM(client=cortecs, model_name='neuralmagic/Meta-Llama-3.1-8B-Instruct-FP8') as llm:
+with DedicatedLLM(client=cortecs, model_id='neuralmagic--Meta-Llama-3.1-8B-Instruct-FP8') as llm:
     essay = llm.invoke('Write an essay about dynamic provisioning')
     print(essay.content)
 
@@ -55,7 +62,7 @@ from cortecs_py.integrations import DedicatedLLM
 cortecs = Cortecs()
 loader = ArxivLoader(
     query="reasoning",
-    load_max_docs=20,
+    load_max_docs=40,
     get_ful_documents=True,
     doc_content_chars_max=25000,  # ~6.25k tokens, make sure the models supports that context length
     load_all_available_meta=False
@@ -64,7 +71,7 @@ loader = ArxivLoader(
 prompt = ChatPromptTemplate.from_template("{text}\n\n Explain to me like I'm five:")
 docs = loader.load()
 
-with DedicatedLLM(client=cortecs, model_name='neuralmagic/Meta-Llama-3.1-8B-Instruct-FP8') as llm:
+with DedicatedLLM(client=cortecs, model_id='neuralmagic--Meta-Llama-3.1-8B-Instruct-FP8') as llm:
     chain = prompt | llm
 
     print("Processing data batch-wise ...")
@@ -77,8 +84,8 @@ This simple example showcases the power of dynamic provisioning. We summarized *
 seconds**.
 The llm can be **fully utilized** in those 55 seconds enabling better cost efficiency. Comparing to serverless open source model providers we observe the following:
 
-<img src="https://github.com/user-attachments/assets/3d50d642-9f78-4336-a1a5-235b109d5f68" alt="Price Comparison (USD)" width="500" />
-<img src="https://github.com/user-attachments/assets/6dd22261-47ad-40c8-a647-4ee0ab071545" alt="Price Comparison per Million Tokens (USD)" width="500" />
+<img src="https://github.com/user-attachments/assets/3d50d642-9f78-4336-a1a5-235b109d5f68" alt="Price Comparison (USD)" width="400" />
+<img src="https://github.com/user-attachments/assets/6dd22261-47ad-40c8-a647-4ee0ab071545" alt="Price Comparison per Million Tokens (USD)" width="400" />
 
 ## Use Cases
 

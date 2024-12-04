@@ -1,0 +1,75 @@
+name: Pre-deploying with TestPyPI
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Trigger on version tags (e.g., v1.0.0)
+  workflow_dispatch:
+
+jobs:
+  pre-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools wheel twine build
+          pip install -e .
+
+      - name: Set version based on tag or build number
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+
+          if [ -z "${GITHUB_REF##refs/tags/*}" ]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+
+            echo "Updating pyproject.toml with version: $VERSION"
+            sed -i "s/^version = .*/version = \"${VERSION}\"/" pyproject.toml
+
+            #Commit and push updated pyproject.toml
+            git config user.name "${{ github.actor }}"
+            git config user.email "${{ github.actor }}@users.noreply.github.com"
+            git checkout main 
+            git add pyproject.toml
+            git commit -m "Update pyproject.toml version to $VERSION"
+            git push origin main
+
+          else
+            # Extract the base version from pyproject.toml
+            BASE_VERSION=$(grep -Po '(?<=^version = ")[^"]+' pyproject.toml)
+
+            # Use GITHUB_RUN_ID for the build number
+            BUILD_NUMBER=$GITHUB_RUN_ID
+            VERSION="${BASE_VERSION}.dev${BUILD_NUMBER}"
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "Version is $VERSION"
+
+          echo "Updating pyproject.toml with version: $VERSION"
+          sed -i "s/^version = .*/version = \"${VERSION}\"/" pyproject.toml
+
+      - name: Build and publish
+        env:
+          TWINE_USERNAME: ${{ secrets.TESTPYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.TESTPYPI_PASSWORD }}
+        run: |
+          python -m build
+          twine upload --repository-url https://test.pypi.org/legacy/ dist/* --verbose
+
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: cortecs-py-package-distributions
+          path: dist/
+          retention-days: 7  # Automatically delete artifacts after 7 days

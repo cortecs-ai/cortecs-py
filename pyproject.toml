@@ -16,24 +16,54 @@ classifiers = [
 dependencies = [
     "requests",
     "tqdm",
-    "langchain~=0.2.0",
-    "langchain-openai~=0.1.25"
+    "pydantic",
+    "langchain>=0.2.0",
+    "langchain-openai>=0.1.25"
 ]
 
 [project.optional-dependencies]
-crewai-integration = ["crewai"]
-
+crewai-integration = ["crewai>=0.83.0"]
+dev = [
+    "python-dotenv",
+    "ruff",
+    "bandit",
+]
 examples = [
     "langchain-community",
     "arxiv",
     "pymupdf",
     "praw",
-    "crewai",
+    "crewai>=0.83.0",
     "transformers"
 ]
-
-all = ["crewai", "langchain-community", "arxiv", "pymupdf", "praw", "transformers"]
+all = ["crewai>=0.83.0", "langchain-community", "arxiv", "pymupdf", "praw", "transformers"]
 
 [project.urls]
-Homepage = "https://github.com/cortecs-ai/cortecs-py"  # todo link to our docs
+Homepage = "https://github.com/cortecs-ai/cortecs-py"
+Docs = "https://docs.cortecs.ai/cortecs-py/python-client"
 Issues = "https://github.com/cortecs-ai/cortecs-py/issues"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+extend-select = [
+    "I", # isort
+    "F", # PyFlakes
+    "E", # pycodestyle
+    "ANN", # flake8-annotations
+    "B", # flake8-bugbear
+    "ASYNC", # flake8-async
+    "UP", # pyupgrade
+    "N", # pep8-naming
+    "A", # flake8-builtins
+    "C4", # flake8-comprehensions
+]
+
+[tool.uv.sources]
+cortecs-py = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "cortecs-py",
+]
