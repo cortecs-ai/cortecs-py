@@ -45,7 +45,13 @@ class Cortecs:
             headers["Authorization"] = f"Bearer {self.token}"
 
         try:
-            response = requests.request(method, f"{self.api_base_url}{endpoint}", headers=headers, timeout=timeout)
+            response = requests.request(
+                method,
+                f'{self.api_base_url}{endpoint}',
+                headers=headers,
+                **kwargs,
+                timeout=timeout
+            )
 
             response.raise_for_status()
         except requests.exceptions.HTTPError as http_err:
@@ -117,11 +123,11 @@ class Cortecs:
 
         hardware_type_defauled = False
         if not instance_args.get("hardware_type_id"):
-            instance_args["hardware_type_id"] = response["hardware_info"]["recommended_config"]
+            instance_args["hardware_type_id"] = response["recommended_config"]
             hardware_type_defauled = True
 
         if instance_args.get("context_length"):
-            max_context_length = response["hardware_info"]["hardware_configs"][instance_args["hardware_type_id"]][
+            max_context_length = response["hardware_configs"][instance_args["hardware_type_id"]][
                 "params"
             ]["max_context_length"]
             if instance_args["context_length"] > max_context_length:
@@ -135,7 +141,7 @@ class Cortecs:
                     )
         else:
             default_context_length = min(
-                response["hardware_info"]["hardware_configs"][instance_args["hardware_type_id"]]["params"][
+                response["hardware_configs"][instance_args["hardware_type_id"]]["params"][
                     "max_context_length"
                 ],
                 32000,
