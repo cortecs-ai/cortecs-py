@@ -73,7 +73,6 @@ class ModelPreview(BaseModel):
     screen_name: str | None
     size: int | None
     hardware_configs: list[str] | None
-    recommended_config: str | None
 
     class Config:
         protected_namespaces = ()
@@ -88,7 +87,6 @@ class ModelPreview(BaseModel):
         hardware_info = raw_data.get("hardware_info")
         if hardware_info:
             raw_data["hardware_configs"] = hardware_info.get("hardware_configs")
-            raw_data["recommended_config"] = hardware_info.get("recommended_config")
 
         return cls.model_validate(raw_data)
 
