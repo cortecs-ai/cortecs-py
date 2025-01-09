@@ -7,11 +7,11 @@ from cortecs_py.integrations.langchain import DedicatedLLM
 
 # this example demonstrates dedicated inference in realtime settings
 if __name__ == "__main__":
-    model_id = "neuralmagic--Meta-Llama-3.1-70B-Instruct-FP8"
+    model_name = "cortecs/phi-4-FP8-Dynamic"
     cortecs = Cortecs()
     reddit = praw.Reddit(user_agent="Read-only example bot")
 
-    with DedicatedLLM(cortecs, model_id, context_length=1500, temperature=0.0) as llm:
+    with DedicatedLLM(cortecs, model_name, context_length=1500, temperature=0.0) as llm:
         prompt = ChatPromptTemplate.from_template(
         """
         Given the reddit post below, classify it as either `Art`, `Finance`, `Science`, `Taylor Swift` or `Other`.

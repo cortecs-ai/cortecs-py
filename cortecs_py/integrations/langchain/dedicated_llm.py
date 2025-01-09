@@ -9,7 +9,7 @@ class DedicatedLLM:
     def __init__(
         self,
         client: Cortecs,
-        model_id: str,
+        model_name: str,
         hardware_type_id: str = None,
         context_length: int = None,
         billing_interval: str = "per_minute",
@@ -20,7 +20,7 @@ class DedicatedLLM:
     ) -> None:
         self.client = client
         self.provision_kwargs = {
-            "model_id": model_id,
+            "model_name": model_name,
             "hardware_type_id": hardware_type_id,
             "context_length": context_length,
             "billing_interval": billing_interval,

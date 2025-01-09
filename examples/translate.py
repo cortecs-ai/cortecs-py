@@ -9,11 +9,11 @@ from cortecs_py.integrations.langchain import DedicatedLLM
 from cortecs_py.utils import convert_model_name
 
 if __name__ == "__main__":
-    model_id = "neuralmagic--Meta-Llama-3.1-8B-Instruct-FP8"
+    model_name = "cortecs/phi-4-FP8-Dynamic"
     cortecs = Cortecs()
 
     prompt = ChatPromptTemplate.from_template("{text}\n\n Translate to German. Don't comment:")
-    tokenizer = AutoTokenizer.from_pretrained(convert_model_name(model_id, to_hf_format=True))
+    tokenizer = AutoTokenizer.from_pretrained(convert_model_name(model_name, to_hf_format=True))
     text_splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(
         tokenizer, chunk_size=200, chunk_overlap=0
     )
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     bible = requests.get("https://openbible.com/textfiles/kjv.txt", timeout=20).text
     chunks = text_splitter.split_text(bible)
 
-    with DedicatedLLM(client=cortecs, model_id=model_id, context_length=2000, temperature=0.0) as llm:
+    with DedicatedLLM(client=cortecs, model_name=model_name, context_length=2000, temperature=0.0) as llm:
         translation_chain = prompt | llm
         batch_size = 100  # use batched inference
         for i in trange(0, 50, batch_size, desc="Translating bible ..."):

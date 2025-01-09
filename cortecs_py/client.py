@@ -180,7 +180,7 @@ class Cortecs:
 
     def start(
         self,
-        model_id: str,
+        model_name: str,
         hardware_type_id: str | None = None,
         context_length: int | None = None,
         billing_interval: str | None = None,
@@ -193,7 +193,7 @@ class Cortecs:
         response = self._post(
             "/instances/start",
             data={
-                "model_id": model_id,
+                "model_id": model_name.replace('/', '--'),
                 "hardware_type_id": hardware_type_id,
                 "context_length": context_length,
                 "billing_interval": billing_interval,
@@ -238,7 +238,7 @@ class Cortecs:
 
     def ensure_instance(
         self,
-        model_id: str,
+        model_name: str,
         hardware_type_id: str | None = None,
         context_length: int | None = None,
         billing_interval: str | None = None,
@@ -257,7 +257,7 @@ class Cortecs:
         If poll is True, wait for the instance to start.
         """
         instance_args = {
-            "model_id": model_id,
+            "model_id": model_name.replace('/', '--'),
             "hardware_type_id": hardware_type_id,
             "context_length": context_length,
             "billing_interval": billing_interval,
@@ -284,7 +284,7 @@ class Cortecs:
             return self.restart(stopped_instance_id, poll=poll)
 
         return self.start(
-            model_id,
+            model_name,
             hardware_type_id,
             context_length,
             billing_interval,

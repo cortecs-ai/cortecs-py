@@ -18,7 +18,7 @@ This library starts and stops your resources. The logic can be implemented using
 or [crewAI](https://docs.crewai.com/introduction).
 
 1. **Start your LLM**
-2. Execute your (batch) jobs
+2. Execute (massive batch) jobs
 3. **Shutdown your LLM**
 
 ```python
@@ -27,7 +27,7 @@ from cortecs_py.integrations.langchain import DedicatedLLM
 
 cortecs = Cortecs()
 
-with DedicatedLLM(client=cortecs, model_id='neuralmagic--Meta-Llama-3.1-8B-Instruct-FP8') as llm:
+with DedicatedLLM(client=cortecs, model_name='cortecs/phi-4-FP8-Dynamic') as llm:
     essay = llm.invoke('Write an essay about dynamic provisioning')
     print(essay.content)
 
@@ -71,7 +71,7 @@ loader = ArxivLoader(
 prompt = ChatPromptTemplate.from_template("{text}\n\n Explain to me like I'm five:")
 docs = loader.load()
 
-with DedicatedLLM(client=cortecs, model_id='neuralmagic--Meta-Llama-3.1-8B-Instruct-FP8') as llm:
+with DedicatedLLM(client=cortecs, model_name='cortecs/phi-4-FP8-Dynamic') as llm:
     chain = prompt | llm
 
     print("Processing data batch-wise ...")
