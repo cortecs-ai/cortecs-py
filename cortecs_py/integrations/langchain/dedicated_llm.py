@@ -33,14 +33,20 @@ class DedicatedLLM:
         if not self.api_key:
             raise ValueError("Set `OPENAI_API_KEY` as environment variable or pass it as an argument to DedicatedLLM.")
 
-        self.instance_id = None
+        self.instance = None
         self.openai_api_kwargs = kwargs or {}
 
-    def __enter__(self) -> ChatOpenAI:
+    def start_up(self) -> ChatOpenAI:
         self.instance = self.client.start(**self.provision_kwargs)
         config = self.instance.chat_openai_config(api_key=self.api_key, **self.openai_api_kwargs)
         return ChatOpenAI(**config)
 
-    def __exit__(self, exc_type: type | None, exc_value: Exception | None, traceback: type | None) -> bool | None:
+    def shut_down(self):
         self.client.stop(self.instance.instance_id)
         self.client.delete(self.instance.instance_id)
+
+    def __enter__(self) -> ChatOpenAI:
+        return self.start_up()
+
+    def __exit__(self, exc_type: type | None, exc_value: Exception | None, traceback: type | None) -> bool | None:
+        return self.shut_down()
