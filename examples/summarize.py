@@ -2,7 +2,7 @@ from langchain_community.document_loaders import ArxivLoader
 from langchain_core.prompts import ChatPromptTemplate
 
 from cortecs_py import Cortecs
-from cortecs_py.integrations import DedicatedLLM
+from cortecs_py.integrations.langchain import DedicatedLLM
 
 cortecs = Cortecs()
 loader = ArxivLoader(

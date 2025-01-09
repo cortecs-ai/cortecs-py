@@ -1,7 +1,7 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import agent, crew, task
 
-from cortecs_py.integrations import DedicatedCrew, DedicatedCrewBase
+from cortecs_py.integrations.crewai import DedicatedCrew, DedicatedCrewBase
 
 # Uncomment the following line to use an example of a custom tool
 # from example_crew.tools.custom_tool import MyCustomTool

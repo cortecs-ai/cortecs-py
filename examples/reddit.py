@@ -3,7 +3,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
 from cortecs_py import Cortecs
-from cortecs_py.integrations import DedicatedLLM
+from cortecs_py.integrations.langchain import DedicatedLLM
 
 # this example demonstrates dedicated inference in realtime settings
 if __name__ == "__main__":

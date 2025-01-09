@@ -5,7 +5,7 @@ from tqdm import trange
 from transformers import AutoTokenizer
 
 from cortecs_py import Cortecs
-from cortecs_py.integrations import DedicatedLLM
+from cortecs_py.integrations.langchain import DedicatedLLM
 from cortecs_py.utils import convert_model_name
 
 if __name__ == "__main__":
