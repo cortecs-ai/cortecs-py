@@ -45,6 +45,7 @@ Issues = "https://github.com/cortecs-ai/cortecs-py/issues"
 
 [tool.ruff]
 line-length = 120
+extend-ignore = ["I001"]
 
 [tool.ruff.lint]
 extend-select = [
