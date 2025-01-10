@@ -6,7 +6,7 @@ my_model = 'cortecs/phi-4-FP8-Dynamic'
 
 # --> Start an instance
 my_instance = cortecs.start(my_model)
-client = OpenAI(**my_instance.chat_openai_config())
+client = OpenAI(base_url=my_instance.base_url)
 
 completion = client.chat.completions.create(
   model=my_model,
