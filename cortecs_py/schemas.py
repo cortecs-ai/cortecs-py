@@ -40,17 +40,6 @@ class Instance(BaseModel):
     instance_args: InstanceArgs
     instance_status: InstanceStatus
 
-    def chat_openai_config(self, **kwargs: dict[str, Any]) -> dict[str, Any]:
-        """
-        Returns a dictionary of arguments for ChatOpenAI.
-        Allows optional additional arguments to be included.
-        """
-        return {
-            "model_name": self.instance_args.hf_name,
-            "base_url": self.base_url,
-            **kwargs,
-        }
-
 
 class HardwareType(BaseModel):
     hardware_type_id: str

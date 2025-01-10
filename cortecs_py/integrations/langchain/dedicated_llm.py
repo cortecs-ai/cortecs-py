@@ -7,16 +7,16 @@ from cortecs_py import Cortecs
 
 class DedicatedLLM:
     def __init__(
-        self,
-        client: Cortecs,
-        model_name: str,
-        hardware_type_id: str = None,
-        context_length: int = None,
-        billing_interval: str = "per_minute",
-        poll_interval: int = 5,
-        max_retries: int = 150,
-        api_key: str | None = None,
-        **kwargs: dict[str, any],
+            self,
+            client: Cortecs,
+            model_name: str,
+            hardware_type_id: str = None,
+            context_length: int = None,
+            billing_interval: str = "per_minute",
+            poll_interval: int = 5,
+            max_retries: int = 150,
+            api_key: str | None = None,
+            **kwargs: dict[str, any],
     ) -> None:
         self.client = client
         self.provision_kwargs = {
@@ -38,8 +38,8 @@ class DedicatedLLM:
 
     def start_up(self) -> ChatOpenAI:
         self.instance = self.client.start(**self.provision_kwargs)
-        config = self.instance.chat_openai_config(api_key=self.api_key, **self.openai_api_kwargs)
-        return ChatOpenAI(**config)
+        return ChatOpenAI(api_key=self.api_key, model_name=self.instance.instance_args.hf_name,
+                          base_url=self.instance.base_url, **self.openai_api_kwargs)
 
     def shut_down(self):
         self.client.stop(self.instance.instance_id)
