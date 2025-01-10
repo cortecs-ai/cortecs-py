@@ -324,7 +324,8 @@ class Cortecs:
 
     def stop_all(self) -> list[str]:
         """Stop all running instances."""
-        return self._post("/instances/stop-all", auth_required=True)["instance_ids"]
+        res = self._post("/instances/stop-all", auth_required=True)
+        return res['instance_ids'] if 'instance_ids' in res else None
 
     def delete(self, instance_id: str) -> str:
         """Delete an instance by its ID. Only stopped instances can be deleted."""
