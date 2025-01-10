@@ -41,7 +41,7 @@ class DedicatedLLM:
         return ChatOpenAI(api_key=self.api_key, model_name=self.instance.instance_args.hf_name,
                           base_url=self.instance.base_url, **self.openai_api_kwargs)
 
-    def shut_down(self):
+    def shut_down(self) -> None:
         self.client.stop(self.instance.instance_id)
         self.client.delete(self.instance.instance_id)
 

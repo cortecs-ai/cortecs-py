@@ -1,5 +1,5 @@
-from openai import OpenAI
 from cortecs_py import Cortecs
+from openai import OpenAI
 
 cortecs = Cortecs()
 my_model = 'cortecs/phi-4-FP8-Dynamic'
@@ -9,10 +9,10 @@ my_instance = cortecs.start(my_model)
 client = OpenAI(base_url=my_instance.base_url)
 
 completion = client.chat.completions.create(
-  model=my_model,
-  messages=[
-    {"role": "user", "content": "Write a joke about LLMs."}
-  ]
+    model=my_model,
+    messages=[
+        {"role": "user", "content": "Write a joke about LLMs."}
+    ]
 )
 print(completion.choices[0].message.content)
 
