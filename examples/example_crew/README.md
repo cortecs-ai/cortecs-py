@@ -20,7 +20,8 @@ crewai install
 ```
 ### Customizing
 
-**Add your `OPENAI_API_KEY` into the `.env` file**
+**Add your `OPENAI_API_KEY`, `CORTECS_CLIENT_ID` and `CORTECS_CLIENT_SECRET` into the `.env` file**
+**Add `MODEL_NAME` into the `.env` file to choose the model to run your crew on.**
 
 - Modify `src/example_crew/config/agents.yaml` to define your agents
 - Modify `src/example_crew/config/tasks.yaml` to define your tasks

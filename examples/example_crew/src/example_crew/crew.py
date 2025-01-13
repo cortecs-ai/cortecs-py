@@ -1,7 +1,11 @@
-from crewai import Agent, Crew, Process, Task
-from crewai.project import agent, crew, task
+import os
+from typing import Any
+from dotenv import load_dotenv
 
-from cortecs_py.integrations.crewai import DedicatedCrew, DedicatedCrewBase
+from crewai import Agent, Crew, Process, Task
+from crewai.project import agent, crew, task, after_kickoff, CrewBase
+
+from cortecs_py import Cortecs
 
 # Uncomment the following line to use an example of a custom tool
 # from example_crew.tools.custom_tool import MyCustomTool
@@ -9,10 +13,32 @@ from cortecs_py.integrations.crewai import DedicatedCrew, DedicatedCrewBase
 # Check our tools documentations for more information on how to use them
 # from crewai_tools import SerperDevTool
 
-@DedicatedCrewBase
+load_dotenv()
+
+
+@CrewBase
 class ExampleCrew:
     """ExampleCrew crew"""
-    
+
+    def __init__(self) -> None:
+        self.start_llm()
+
+    def start_llm(self) -> None:
+        self.cortecs_client = Cortecs()
+        self.model_name = os.environ["MODEL_NAME"]
+        print(f"Starting model {self.model_name}...")
+        self.instance = self.cortecs_client.ensure_instance(self.model_name)
+
+        os.environ["OPENAI_API_BASE"] = self.instance.base_url
+        os.environ["MODEL"] = f"openai/{self.model_name}"
+        print(f"Model {self.model_name} running.")
+
+    @after_kickoff
+    def stop_and_delete_llm(self, result: Any) -> Any:  # noqa: ANN401
+        self.cortecs_client.stop(self.instance.instance_id)
+        self.cortecs_client.delete(self.instance.instance_id)
+        print(f"Model {self.model_name} stopped and deleted.")
+
     @agent
     def researcher(self) -> Agent:
         return Agent(
@@ -38,9 +64,7 @@ class ExampleCrew:
     @crew
     def crew(self) -> Crew:
         """Creates the ExampleCrew crew"""
-        return DedicatedCrew(
-            instance_id=self.instance_id,
-            client=self.client,
+        return Crew(
             agents=self.agents,  # Automatically created by the @agent decorator
             tasks=self.tasks,  # Automatically created by the @task decorator
             process=Process.sequential,
