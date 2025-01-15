@@ -15,29 +15,25 @@ from cortecs_py import Cortecs
 
 load_dotenv()
 
-
 @CrewBase
 class ExampleCrew:
-    """ExampleCrew crew"""
-
+    
     def __init__(self) -> None:
         self.start_llm()
-
+    
     def start_llm(self) -> None:
         self.cortecs_client = Cortecs()
-        self.model_name = os.environ["MODEL_NAME"]
-        print(f"Starting model {self.model_name}...")
-        self.instance = self.cortecs_client.ensure_instance(self.model_name)
-
+        self.model = os.environ["MODEL"].removeprefix("openai/")
+        
+        print(f"Starting model {self.model}...")
+        self.instance = self.cortecs_client.ensure_instance(self.model)
         os.environ["OPENAI_API_BASE"] = self.instance.base_url
-        os.environ["MODEL"] = f"openai/{self.model_name}"
-        print(f"Model {self.model_name} running.")
-
+    
     @after_kickoff
     def stop_and_delete_llm(self, result: Any) -> Any:  # noqa: ANN401
         self.cortecs_client.stop(self.instance.instance_id)
         self.cortecs_client.delete(self.instance.instance_id)
-        print(f"Model {self.model_name} stopped and deleted.")
+        print(f"Model {self.model} stopped and deleted.")
 
     @agent
     def researcher(self) -> Agent:
