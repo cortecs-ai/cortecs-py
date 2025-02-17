@@ -11,13 +11,16 @@ class InstanceStatus(BaseModel):
     started_at: datetime | None = None
     stopped_at: datetime | None = None
     init_progress: dict[str, Any] | None = None
-
+    
+class WorkerStatus(BaseModel):
+    init_progress: dict[str, Any] | None = None
 
 class InstanceArgs(BaseModel):
     model_id: str
     hardware_type_id: str | None
     context_length: int | None
     billing_interval: str | None
+    num_workers: int | None
 
     class Config:
         protected_namespaces = ()
@@ -39,6 +42,7 @@ class Instance(BaseModel):
     base_url: str | None
     instance_args: InstanceArgs
     instance_status: InstanceStatus
+    worker_statuses: list[WorkerStatus]
 
 
 class HardwareType(BaseModel):
