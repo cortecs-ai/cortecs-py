@@ -10,7 +10,6 @@ class InstanceStatus(BaseModel):
     status: str
     started_at: datetime | None = None
     stopped_at: datetime | None = None
-    init_progress: dict[str, Any] | None = None
     
 class WorkerStatus(BaseModel):
     init_progress: dict[str, Any] | None = None
