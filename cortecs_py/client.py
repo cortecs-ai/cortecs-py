@@ -10,6 +10,7 @@ from cortecs_py.schemas import (
     InstanceArgs,
     InstanceStatus,
     ModelPreview,
+    WorkerStatus
 )
 
 
@@ -150,6 +151,10 @@ class Cortecs:
 
         if not instance_args.get("billing_interval"):
             instance_args["billing_interval"] = "per_minute"
+            
+        if not instance_args.get("num_workers"):
+            instance_args["num_workers"] = 1
+
         return InstanceArgs(**instance_args)
 
     def poll_instance(self, instance_id: str, poll_interval: int = 5, max_retries: int = 150) -> Instance:
@@ -163,16 +168,16 @@ class Cortecs:
         if instance.instance_status.status == "running":
             return instance
 
-        total_steps = instance.instance_status.init_progress["num_steps"]
+        total_steps = instance.worker_statuses[0].init_progress["num_steps"]
         with tqdm(total=total_steps, desc="Provisioning resources") as pbar:
             for _ in range(max_retries):
                 instance = self.get_instance(instance_id)
                 if instance.instance_status.status == "stopped":
                     raise RuntimeError("Instance has been stopped.")
-                pbar.set_description(instance.instance_status.init_progress["description"])
-                pbar.update(instance.instance_status.init_progress["current_step"] - pbar.n)
+                pbar.set_description(instance.worker_statuses[0].init_progress["description"])
+                pbar.update(instance.worker_statuses[0].init_progress["current_step"] - pbar.n)
 
-                if instance.instance_status.init_progress["current_step"] == total_steps:
+                if instance.worker_statuses[0].init_progress["current_step"] == total_steps:
                     return instance
 
                 time.sleep(poll_interval)
@@ -184,6 +189,7 @@ class Cortecs:
         hardware_type_id: str | None = None,
         context_length: int | None = None,
         billing_interval: str | None = None,
+        num_workers: int | None = None,
         *,
         poll: bool = True,
         poll_interval: int = 5,
@@ -197,6 +203,7 @@ class Cortecs:
                 "hardware_type_id": hardware_type_id,
                 "context_length": context_length,
                 "billing_interval": billing_interval,
+                "num_workers": num_workers,
             },
             auth_required=True,
         )
@@ -242,6 +249,7 @@ class Cortecs:
         hardware_type_id: str | None = None,
         context_length: int | None = None,
         billing_interval: str | None = None,
+        num_workers: int | None = None,
         *,
         poll: bool = True,
         poll_interval: int = 5,
@@ -261,6 +269,7 @@ class Cortecs:
             "hardware_type_id": hardware_type_id,
             "context_length": context_length,
             "billing_interval": billing_interval,
+            "num_workers": num_workers
         }
         requested_instance_args = self._get_default_instance_args(instance_args)
         all_instances = self.get_all_instances()
@@ -288,6 +297,7 @@ class Cortecs:
             hardware_type_id,
             context_length,
             billing_interval,
+            num_workers,
             poll=poll,
             poll_interval=poll_interval,
             max_retries=max_retries,
@@ -301,6 +311,10 @@ class Cortecs:
     def get_instance_status(self, instance_id: str) -> InstanceStatus:
         """Get the status of an instance by its ID."""
         return self.get_instance(instance_id).instance_status
+    
+    def get_worker_statuses(self, instance_id: str) -> list[WorkerStatus]:
+        """Get a list of worker statuses of an instance by its ID."""
+        return self.get_instance(instance_id).worker_statuses
 
     def get_all_instances(self) -> list[Instance]:
         """Get all instances."""
