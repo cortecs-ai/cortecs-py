@@ -130,7 +130,7 @@ class Cortecs:
         if instance_args.get("context_length"):
             max_context_length = response["hardware_configs"][instance_args["hardware_type_id"]][
                 "params"
-            ]["max_context_length"]
+            ]["--max-model-len"]
             if instance_args["context_length"] > max_context_length:
                 if hardware_type_defauled:
                     raise ValueError(f"Context length {instance_args['context_length']} is too large for the "
@@ -143,7 +143,7 @@ class Cortecs:
         else:
             default_context_length = min(
                 response["hardware_configs"][instance_args["hardware_type_id"]]["params"][
-                    "max_context_length"
+                    "--max-model-len"
                 ],
                 32000,
             )
