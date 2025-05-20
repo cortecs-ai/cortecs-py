@@ -7,7 +7,7 @@
 [![Documentation](https://img.shields.io/badge/docs-available-blue.svg)](https://docs.cortecs.ai/) 
 [![Join our Discord](https://img.shields.io/badge/discord-join%20chat-7289da.svg)](https://discord.com/invite/bPFEFcWBhp)
 
-Lightweight wrapper for the [cortecs.ai](https://cortecs.ai) enabling instant provisioning.
+Lightweight wrapper for the [cortecs.ai](https://cortecs.ai) enabling dynamic provisioning.
 
 ## ⚡Quickstart
 Dynamic provisioning allows you to run LLM-workflows on dedicated compute. The
@@ -92,6 +92,5 @@ The llm can be **fully utilized** in those 55 seconds enabling better cost effic
 * Low latency -> [How to process reddit in realtime](https://github.com/cortecs-ai/cortecs-py/blob/main/examples/reddit.py)
 * Multi-agents -> [How to use CrewAI without request limits](https://github.com/cortecs-ai/cortecs-py/tree/main/examples/example_crew)
 * Batch processing
-* High-security 
 
 For more information see our [docs](https://docs.cortecs.ai/) or join our [discord](https://discord.gg/bPFEFcWBhp).
